@@ -1,4 +1,4 @@
-import Account from "../../entities/account";
+import Account from '../../entities/account'
 import { Either } from '../../../shared/either'
 import ResponseError from '../../../shared/response-error'
 export interface ISignGateway {

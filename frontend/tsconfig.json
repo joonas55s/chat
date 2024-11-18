@@ -1,21 +1,37 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "outDir": "./dist",
+    "types": ["node", "jest","@testing-library/jest-dom"],
+    "rootDirs": ["src", "tests"],
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "target": "ESNext",
+    "module": "ESNext",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@public/*":["./public/*"],
+      "@domain/*":["./src/domain/*"],
+      "@aplication/*":["./src/aplication/*"],
+      "@infra/*":["./src/infra/*"],
+      "@main/*":["./src/main/*"],
+      "@presentation/*":["./src/presentation/*"],
+      "@shared/*":["./src/shared/*"],
+      "@test/*": ["./tests/*"]
+    }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["tests","src","vite.config.ts"]
+
+  //"references": [{ "path": "./tsconfig.node.json" }]
 }

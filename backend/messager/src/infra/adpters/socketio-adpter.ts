@@ -1,53 +1,45 @@
-import Messenger from "src/domain/messenger"
-import SendMessage from "src/aplication/use-case/messages/send-message/send-message";
-import { Server } from "http"
-import { Server as IoServer, Socket } from "socket.io"
+import { Server as ServerHttp } from 'http'
+import { AppSocket } from '@domain/appSocket'
+import { Server, Socket } from 'socket.io'
+import { SocketRepository } from '@domain/repository/users/socket-repository'
+import { Queue } from '../queue/queue'
 
-export default class SocketIoAdpter implements Messenger {
-    // REFATORAR COM URGENCIA
-    private io: IoServer
-    private socket: Socket
-    constructor(httpserver: Server) {
-        this.io = new IoServer(httpserver, {
-            path: '/socket.io',
-            cors: {
-                origin: '*',
-            }
-        })
-    }
 
-    private clients = []
+export default class SocketIoAdpter implements AppSocket {
+	private io:Server
 
-    async deliver(senderUsername: string, recipientUsername: string, message: string, send_at: Date): Promise<void> {
-        const target = this.clients.find(user => user.username === recipientUsername)
-        if (!target) return
-        this.socket.broadcast.to(target.id).emit('messages', { senderUsername, message, send_at });
-    }
+	constructor(private sockerRepository:SocketRepository, private queue:Queue){}
 
-    async collect(callback: SendMessage): Promise<void> {
-        this.io.on('connection', (socket) => {
-            console.log("socket conectado")
-            this.clients.push({
-                id: socket.id,
-                username: socket.handshake.query.senderUsername
-            })
+	async start(server: ServerHttp) {
+		this.io = new Server(server,{
+			cors: {
+				origin: '*',
+			}
+		})
 
-            this.socket = socket.on('messages', async (body: any) => {
-                const { senderUsername, recipientUsername, message, send_at } = body
-                try{
-                    await callback.exec({ senderUsername, recipientUsername, message, send_at })
-                }catch(err:any){
-                    console.log(err.message)
-                }
-            })
-            this.disconect()
-        })
-    }
+		this.io.on('connection', (socket: Socket) => {
+			const username = socket.handshake.query.username as string
+			const id = socket.id
+			this.addUsers(username,id)
+			socket.on('messages', async (body: any) => {
+				const { senderUsername, recipientUsername, message, send_at } = body
+				this.queue.publish('messages',body)
+				const target = await this.sockerRepository.get(recipientUsername)
+				if (target) socket.to(target.id).emit('messages', { senderUsername, message, send_at, id:target.id})
+			})
+			socket.on('disconnect', () => {
+				console.log('Cliente desconectado.')
+			})
+		})
+	}
 
-    disconect() {
-        this.socket.on("disconnect", () => {
-            const index = this.clients.findIndex(user => user.username)
-            this.clients.splice(index, 1)
-        });
-    }
+	private async addUsers(recipientUsername:string,id:string){
+		const exist = await this.sockerRepository.get(recipientUsername)
+		if (!exist) {
+			await this.sockerRepository.add(recipientUsername,id)
+			return
+		}
+		await this.sockerRepository.update(recipientUsername,id)
+	}
+    
 }

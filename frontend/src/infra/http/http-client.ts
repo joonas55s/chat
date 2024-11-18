@@ -1,5 +1,5 @@
-import { Either } from "../../shared/either";
-import ResponseError from "../../shared/response-error";
+import { Either } from '../../shared/either'
+import ResponseError from '../../shared/response-error'
 
 export default interface HttpClient {
     get(url: string): Promise<Either<ResponseError, any>>,

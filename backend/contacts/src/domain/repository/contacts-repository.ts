@@ -1,4 +1,4 @@
-import Contacts from "../entities/contacts"
+import Contacts from '../entities/contacts'
 
 export interface ContactsRepository {
     find(ownerUsername: string): Promise<Contacts | undefined>

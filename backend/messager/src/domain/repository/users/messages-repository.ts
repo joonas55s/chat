@@ -1,4 +1,4 @@
-import Message from "../../entities/message"
+import Message from '../../entities/message'
 
 export interface MessagesRepository {
     save(message:Message): Promise<void>

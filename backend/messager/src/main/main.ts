@@ -1,18 +1,17 @@
-import http from "http";
-import SocketIoAdpter from "src/infra/adpters/socketio-adpter";
-import ExpressHttpServer from "../infra/http/express/ExpressHttpServer";
-import { makeSendMessage } from "./factories/send-message-factory";
-import 'dotenv/config';
+import 'dotenv/config'
+import { makeSocketIo } from './factories/socketio-factory'
+import KafkaAdpter from '@infra/queue/kafka/kafka-adpter'
+import { makeSaveMessagesQueueConsumerUseCase } from './factories/save-messages-queue'
+import ExpressHttpServer from '@infra/http/express/ExpressHttpServer'
 
-async function main() {
-	const httpServerExpress = new ExpressHttpServer();
-	const httpServer = http.createServer(httpServerExpress.app)
-	const socketIoAdpter = new SocketIoAdpter(httpServer)
-	const sendMessage = makeSendMessage(socketIoAdpter)
-	socketIoAdpter.collect(sendMessage)
-	httpServer.listen(process.env.PORT,()=>{
-		console.log("Server started")
-	})	
-}
 
-main();
+const server = new ExpressHttpServer()
+
+const kafkaAdpter = new KafkaAdpter(process.env.CLIENTID,[process.env.BROKERS])
+const socket = makeSocketIo(kafkaAdpter)
+makeSaveMessagesQueueConsumerUseCase(kafkaAdpter)
+socket.start(server.httpServer)
+
+server.httpServer.listen(process.env.PORT, () => {
+	console.log('Servidor Socket.IO está ouvindo na porta ' + process.env.PORT)
+})

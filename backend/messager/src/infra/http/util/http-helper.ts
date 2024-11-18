@@ -1,27 +1,27 @@
-import { HttpResponse } from "../ports"
+import { HttpResponse } from '../ports'
 
 
 export const ok = (data: any): HttpResponse => ({
-  statusCode: 200,
-  body: data
+	statusCode: 200,
+	body: data
 })
 
 export const created = (data: any): HttpResponse => ({
-  statusCode: 201,
-  body: data
+	statusCode: 201,
+	body: data
 })
 
 export const forbidden = (error: Error): HttpResponse => ({
-  statusCode: 403,
-  body: error
+	statusCode: 403,
+	body: error
 })
 
 export const badRequest = (error: Error): HttpResponse => ({
-  statusCode: 400,
-  body: error.message
+	statusCode: 400,
+	body: error.message
 })
 
 export const serverError = (error: Error): HttpResponse => ({
-  statusCode: 500,
-  body: error
+	statusCode: 500,
+	body: error
 })

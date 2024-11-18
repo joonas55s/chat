@@ -7,10 +7,15 @@
     "allowJs": true,
     "baseUrl": ".",
     "isolatedModules": false,
-    "types":["vitest/globals"]
-    // "include": [
-    //   "src",
-    //   "test"
-    // ]
+    "types": ["node", "jest"],
+    "resolveJsonModule":true,
+    "paths": {
+      "@main/*": ["./src/main/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@aplication/*": ["./src/aplication/*"],
+      "@infra/*": ["./src/infra/*"],
+      "@presentation/*": ["./src/presentation/*"],
+      "@test/*": ["test/*"]
+    } 
   }
 }
